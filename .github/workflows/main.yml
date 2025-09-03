@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install google-generativeai requests python-dotenv pytz
+          pip install --upgrade google-generativeai requests python-dotenv pytz
 
       - name: Run the AI agent script
         env:
