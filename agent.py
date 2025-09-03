@@ -71,31 +71,45 @@ def get_canvas_events():
         if not events:
             return "You have no upcoming assignments or events. Great job staying on top of things!"
 
-        # Let's format the events nicely
         formatted_events = []
         local_tz = pytz.timezone(TIMEZONE)
         now = datetime.now(local_tz)
 
-        for event in events[:5]: # Get the top 5 events
-            due_str = event.get('plannable', {}).get('due_at')
-            if not due_str:
+        for event in events[:7]: # Get up to 7 items
+            time_str = None
+            prefix = "Event" # Default prefix
+
+            # NEW LOGIC: Check for assignment due_at first, then event start_at
+            if event.get('plannable', {}).get('due_at'):
+                time_str = event['plannable']['due_at']
+                prefix = "Due"
+            elif event.get('start_at'):
+                time_str = event['start_at']
+                prefix = "Starts"
+
+            # If we didn't find a time for the event, skip it
+            if not time_str:
                 continue
 
             # Convert UTC time from Canvas to local time
-            due_utc = datetime.fromisoformat(due_str.replace('Z', '+00:00'))
-            due_local = due_utc.astimezone(local_tz)
+            event_utc = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
+            event_local = event_utc.astimezone(local_tz)
+            
+            # Don't show events that have already passed today
+            if event_local < now:
+                continue
 
             # Format the due date string
-            if due_local.date() == now.date():
-                day_str = f"Today at {due_local.strftime('%-I:%M %p')}"
-            elif due_local.date() == (now + timedelta(days=1)).date():
-                day_str = f"Tomorrow at {due_local.strftime('%-I:%M %p')}"
+            if event_local.date() == now.date():
+                day_str = f"Today at {event_local.strftime('%-I:%M %p')}"
+            elif event_local.date() == (now + timedelta(days=1)).date():
+                day_str = f"Tomorrow at {event_local.strftime('%-I:%M %p')}"
             else:
-                day_str = f"on {due_local.strftime('%A, %b %d')}"
+                day_str = f"on {event_local.strftime('%A, %b %d')}"
 
             title = event.get('title', 'No Title')
             course = event.get('context_name', 'General')
-            formatted_events.append(f"- Due {day_str}: [{course}] - {title}")
+            formatted_events.append(f"- {prefix} {day_str}: [{course}] - {title}")
 
         return "\n".join(formatted_events) if formatted_events else "No upcoming events with due dates found."
 
