@@ -22,18 +22,20 @@ LOCATION = "Madison, Wisconsin" # Our location from context
 
 # Configure the Gemini API
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini-1.0-pro')
 
 def get_quote():
-    """Fetches a random quote from a free API."""
+    """Fetches a random quote from the ZenQuotes API."""
     try:
-        response = requests.get("https://api.quotable.io/random")
-        response.raise_for_status() # Raise an exception for bad status codes
-        data = response.json()
-        return f'"{data["content"]}" - {data["author"]}'
+        response = requests.get("https://zenquotes.io/api/random")
+        response.raise_for_status()
+        data = response.json()[0]
+        return f'"{data["q"]}" - {data["a"]}'
     except requests.exceptions.RequestException as e:
         print(f"Error fetching quote: {e}")
         return "Could not fetch a quote today, but make it a great day!"
+
+
 
 def get_weather(city):
     """Fetches weather for a given city."""
