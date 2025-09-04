@@ -131,7 +131,7 @@ def generate_ai_briefing(quote, weather, canvas_events):
     {canvas_events}
 
     Based on all this information, especially the upcoming deadlines from Canvas, generate a short, actionable to-do list for the day with 3-4 items.
-    If there are assignments due today or tomorrow, make them a priority.
+    If there are assignments due today or tomorrow, make them a priority. Also include things to do for the week, but don't include them in priority because the priorities should be given to today's or tomorrow's things.
     The tone should be positive and encouraging. Start with a friendly greeting.
     Format the output as a simple HTML email. Do not include `<html>` or `<body>` tags.
     Use `<h2>` for the main title, `<h3>` for sub-sections, `<p>` for paragraphs, and `<ul>` and `<li>` for the list.
