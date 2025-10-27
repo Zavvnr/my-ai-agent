@@ -10,6 +10,8 @@ from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
+print(f"--- Using google-generativeai version: {genai.__version__} ---")
+
 # Load environment variables from .env file
 load_dotenv()
 
