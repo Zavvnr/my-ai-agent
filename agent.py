@@ -29,7 +29,7 @@ TIMEZONE = "America/Chicago" # For converting UTC dates from Canvas
 
 # Configure the Gemini API
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+model = genai.GenerativeModel('gemini-pro')
 
 def get_quote():
     """Fetches a random quote from the ZenQuotes API."""
