@@ -4,6 +4,7 @@ import os
 import smtplib
 import requests
 import google.generativeai as genai
+print(f"--- Using google-generativeai version: {genai.__version__} ---")
 import pytz # New import for timezones
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
