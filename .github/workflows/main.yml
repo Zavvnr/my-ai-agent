@@ -23,7 +23,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --upgrade google-generativeai requests python-dotenv pytz
+          pip cache purge  # <-- ADD THIS LINE to clear pip's cache
+          # ADD --no-cache-dir to force a fresh download
+          pip install --no-cache-dir --upgrade google-generativeai requests python-dotenv pytz
 
       - name: Run the AI agent script
         env:
