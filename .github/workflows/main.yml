@@ -38,13 +38,22 @@ jobs:
       #    WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
       #  run: python check_models.py
 
-      - name: Run the AI agent script
+      # ... (all the steps above)
+
+      - name: Run Model Check Script # Change the name back
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          # ... all your other secrets
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
-          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
-          CANVAS_API_TOKEN: ${{ secrets.CANVAS_API_TOKEN }}
-          CANVAS_BASE_URL: ${{ secrets.CANVAS_BASE_URL }}
-        run: python agent.py
+        run: python check_models.py # <-- Change this line back
+
+      # - name: Run the AI agent script
+        # env:
+        #  GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        #  WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+        #  GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+        #  GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        #  RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+        #  CANVAS_API_TOKEN: ${{ secrets.CANVAS_API_TOKEN }}
+        #  CANVAS_BASE_URL: ${{ secrets.CANVAS_BASE_URL }}
+        # run: python agent.py
