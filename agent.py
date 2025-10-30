@@ -4,6 +4,7 @@ import os
 import smtplib
 import requests
 import google.generativeai as genai
+import sys
 import pytz
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -101,7 +102,7 @@ def generate_ai_briefing(quote, weather, canvas_events):
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
-        print(f"Error generating AI content: {e}")
+        print(f"Error sending email: {e}", file=sys.stderr)
         # THIS IS THE ERROR WE'VE BEEN SEEING
         return f"<h3>Have a wonderful day!</h3><p>Could not generate AI suggestions. Error: {e}</p>"
 
