@@ -4,14 +4,11 @@ import os
 import smtplib
 import requests
 import google.generativeai as genai
-print(f"--- Using google-generativeai version: {genai.__version__} ---")
 import pytz # New import for timezones
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
-
-print(f"--- Using google-generativeai version: {genai.__version__} ---")
 
 # Load environment variables from .env file
 load_dotenv()
@@ -29,7 +26,7 @@ TIMEZONE = "America/Chicago" # For converting UTC dates from Canvas
 
 # Configure the Gemini API
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('models/gemini-pro-latest')
 
 def get_quote():
     """Fetches a random quote from the ZenQuotes API."""
