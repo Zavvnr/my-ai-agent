@@ -1,176 +1,124 @@
-# agent.py (Updated Version)
+# agent.py (Updated with MCP)
 
 import os
 import smtplib
 import requests
 import google.generativeai as genai
-import pytz # New import for timezones
+import pytz
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
+print(f"--- Using google-generativeai version: {genai.__version__} ---")
+
 # Load environment variables from .env file
 load_dotenv()
 
-# Configuration
+# Configuration (all your keys and tokens)
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 WEATHER_API_KEY = os.getenv('WEATHER_API_KEY')
 GMAIL_SENDER = os.getenv('GMAIL_SENDER')
 GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
 RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
-CANVAS_API_TOKEN = os.getenv('CANVAS_API_TOKEN') # New
-CANVAS_BASE_URL = os.getenv('CANVAS_BASE_URL')   # New
+CANVAS_API_TOKEN = os.getenv('CANVAS_API_TOKEN')
+CANVAS_BASE_URL = os.getenv('CANVAS_BASE_URL')
 LOCATION = "Madison, Wisconsin"
-TIMEZONE = "America/Chicago" # For converting UTC dates from Canvas
+TIMEZONE = "America/Chicago"
 
 # Configure the Gemini API
 genai.configure(api_key=GOOGLE_API_KEY)
-model = genai.GenerativeModel('models/gemini-pro-latest')
 
+#
+# -----------------------------------------------------
+# START MCP IMPLEMENTATION
+# -----------------------------------------------------
+#
+
+# 1. DEFINE THE SYSTEM INSTRUCTION (THE "RECIPE")
+# This is your main prompt, telling the AI its job.
+SYSTEM_INSTRUCTION = """
+You are a helpful and motivational morning assistant.
+Your task is to create a short, inspiring morning briefing for a university student.
+The tone should be positive and encouraging. Start with a friendly greeting.
+
+Format the output as a simple HTML email. Do not include <html> or <body> tags.
+Use <h2> for the main title, <h3> for sub-sections, <p> for paragraphs, and <ul> and <li> for lists.
+
+Based on the user's provided information (quote, weather, and Canvas tasks), generate:
+1.  A "Today's Priorities" to-do list with 3-4 actionable items. Prioritize anything due today or tomorrow.
+2.  A "Weekly Outlook" section that lists the other Canvas items.
+"""
+
+# 2. CREATE THE MODEL WITH THE INSTRUCTION
+# We will get this name from your log. It might be 'models/gemini-1.0-pro'
+# or 'models/text-bison-001'
+THE_CORRECT_MODEL_NAME = "PASTE_MODEL_NAME_FROM_YOUR_LOG_HERE" 
+
+model = genai.GenerativeModel(
+    THE_CORRECT_MODEL_NAME,
+    system_instruction=SYSTEM_INSTRUCTION
+)
+
+#
+# -----------------------------------------------------
+# END MCP IMPLEMENTATION
+# -----------------------------------------------------
+#
+
+# ... (get_quote, get_weather, and get_canvas_events functions stay exactly the same) ...
 def get_quote():
-    """Fetches a random quote from the ZenQuotes API."""
-    try:
-        response = requests.get("https://zenquotes.io/api/random")
-        response.raise_for_status()
-        data = response.json()[0]
-        return f'"{data["q"]}" - {data["a"]}'
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching quote: {e}")
-        return "Could not fetch a quote today, but make it a great day!"
+    # ... (your existing code) ...
+    pass
 
 def get_weather(city):
-    """Fetches weather for a given city."""
-    try:
-        url = f"http://api.weatherapi.com/v1/forecast.json?key={WEATHER_API_KEY}&q={city}&days=1&aqi=no&alerts=no"
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        forecast = data['forecast']['forecastday'][0]['day']
-        condition = forecast['condition']['text']
-        temp_f = forecast['avgtemp_f']
-        return f"Today in {city}, expect {condition} with an average temperature of {temp_f}°F."
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching weather: {e}")
-        return "Could not fetch the weather."
+    # ... (your existing code) ...
+    pass
 
-# GET CANVAS EVENTS
 def get_canvas_events():
-    """Fetches upcoming events from the Canvas calendar."""
-    if not CANVAS_API_TOKEN or not CANVAS_BASE_URL:
-        return "Canvas integration not configured."
+    # ... (your existing code) ...
+    pass
 
-    api_url = f"{CANVAS_BASE_URL}/api/v1/users/self/upcoming_events"
-    headers = {"Authorization": f"Bearer {CANVAS_API_TOKEN}"}
-    
-    try:
-        response = requests.get(api_url, headers=headers)
-        response.raise_for_status()
-        events = response.json()
 
-        if not events:
-            return "You have no upcoming assignments or events. Great job staying on top of things!"
-
-        formatted_events = []
-        local_tz = pytz.timezone(TIMEZONE)
-        now = datetime.now(local_tz)
-
-        for event in events[:7]: # Get up to 7 items
-            time_str = None
-            prefix = "Event" # Default prefix
-
-            # NEW LOGIC: Check for assignment due_at first, then event start_at
-            if event.get('plannable', {}).get('due_at'):
-                time_str = event['plannable']['due_at']
-                prefix = "Due"
-            elif event.get('start_at'):
-                time_str = event['start_at']
-                prefix = "Starts"
-
-            # If we didn't find a time for the event, skip it
-            if not time_str:
-                continue
-
-            # Convert UTC time from Canvas to local time
-            event_utc = datetime.fromisoformat(time_str.replace('Z', '+00:00'))
-            event_local = event_utc.astimezone(local_tz)
-            
-            # Don't show events that have already passed today
-            if event_local < now:
-                continue
-
-            # Format the due date string
-            if event_local.date() == now.date():
-                day_str = f"Today at {event_local.strftime('%-I:%M %p')}"
-            elif event_local.date() == (now + timedelta(days=1)).date():
-                day_str = f"Tomorrow at {event_local.strftime('%-I:%M %p')}"
-            else:
-                day_str = f"on {event_local.strftime('%A, %b %d')}"
-
-            title = event.get('title', 'No Title')
-            course = event.get('context_name', 'General')
-            formatted_events.append(f"- {prefix} {day_str}: [{course}] - {title}")
-
-        return "\n".join(formatted_events) if formatted_events else "No upcoming events with due dates found."
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching Canvas events: {e}")
-        return "Could not connect to Canvas."
-
+# 3. SIMPLIFY THE GENERATE FUNCTION (THE "INGREDIENTS")
+# This function now only sends the *data* for the day.
 def generate_ai_briefing(quote, weather, canvas_events):
-    """Uses Gemini to generate a motivational to-do list, now with Canvas info."""
-    prompt = f"""
-    You are a helpful and motivational morning assistant.
-    Your task is to create a short, inspiring morning briefing for a university student.
-    Today's date is {datetime.now().strftime('%A, %B %d, %Y')}.
+    """Uses Gemini to generate a motivational to-do list."""
     
-    Here is today's information:
+    # This is the "User Prompt". It's just the data.
+    prompt = f"""
+    Here is today's information for my briefing:
+    - Today's date is {datetime.now().strftime('%A, %B %d, %Y')}.
     - Inspirational Quote: {quote}
     - Weather Forecast: {weather}
     - Upcoming from Canvas Calendar:
     {canvas_events}
-
-    Based on all this information, especially the upcoming deadlines from Canvas, generate a short, actionable to-do list for the day with 3-4 items.
-    If there are assignments due today or tomorrow, make them a priority. Also include things to do for the week, but don't include them in priority because the priorities should be given to today's or tomorrow's things.
-    The tone should be positive and encouraging. Start with a friendly greeting.
-    Format the output as a simple HTML email. Do not include `<html>` or `<body>` tags.
-    Use `<h2>` for the main title, `<h3>` for sub-sections, `<p>` for paragraphs, and `<ul>` and `<li>` for the list.
-    Make sure to have a section for "Upcoming Deadlines" that lists the Canvas items.
     """
+    
     try:
+        # The model already knows how to format this
+        # thanks to the system_instruction.
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
         print(f"Error generating AI content: {e}")
-        return "<h3>Have a wonderful day!</h3><p>Could not generate AI suggestions, but focus on your top priority and you'll do great.</p>"
+        # THIS IS THE ERROR WE'VE BEEN SEEING
+        return f"<h3>Have a wonderful day!</h3><p>Could not generate AI suggestions. Error: {e}</p>"
 
+# ... (send_email and main execution block stay the same) ...
 def send_email(html_content):
-    """Sends the email using Gmail's SMTP server."""
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = f"Your Morning Briefing - {datetime.now().strftime('%B %d')}"
-    msg['From'] = GMAIL_SENDER
-    msg['To'] = RECIPIENT_EMAIL
+    # ... (your existing code) ...
+    pass
 
-    msg.attach(MIMEText(html_content, 'html'))
-
-    try:
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp_server:
-            smtp_server.login(GMAIL_SENDER, GMAIL_APP_PASSWORD)
-            smtp_server.sendmail(GMAIL_SENDER, RECIPIENT_EMAIL, msg.as_string())
-        print("Email sent successfully!")
-    except Exception as e:
-        print(f"Error sending email: {e}")
-
-# UPDATED MAIN EXECUTION BLOCK
 if __name__ == "__main__":
     print("Agent is running...")
     # 1. Gather data
     daily_quote = get_quote()
     weather_forecast = get_weather(LOCATION)
-    canvas_events = get_canvas_events() # New call
+    canvas_events = get_canvas_events()
 
     # 2. Think with AI
-    ai_content = generate_ai_briefing(daily_quote, weather_forecast, canvas_events) # Pass new data
+    ai_content = generate_ai_briefing(daily_quote, weather_forecast, canvas_events)
 
     # 3. Send the email
     send_email(ai_content)
