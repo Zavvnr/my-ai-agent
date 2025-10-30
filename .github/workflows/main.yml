@@ -26,25 +26,25 @@ jobs:
           # ADD --no-cache-dir to force a fresh download
           pip install --no-cache-dir --upgrade google-generativeai requests python-dotenv pytz
 
-      - name: Run Model Check Script
+      # - name: Run Model Check Script
+      #  env:
+      #    GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          # Add any other secrets your script needs (like GMAIL, CANVAS, etc.)
+      #    GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
+      #    GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      #    RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+      #    CANVAS_API_TOKEN: ${{ secrets.CANVAS_API_TOKEN }}
+      #    CANVAS_BASE_URL: ${{ secrets.CANVAS_BASE_URL }}
+      #    WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+      #  run: python check_models.py
+
+      - name: Run the AI agent script
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          # Add any other secrets your script needs (like GMAIL, CANVAS, etc.)
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
           GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
           CANVAS_API_TOKEN: ${{ secrets.CANVAS_API_TOKEN }}
           CANVAS_BASE_URL: ${{ secrets.CANVAS_BASE_URL }}
-          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
-        run: python check_models.py
-
-      # - name: Run the AI agent script
-      #   env:
-      #     GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-      #     WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
-      #     GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
-      #     GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-      #     RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
-      #     CANVAS_API_TOKEN: ${{ secrets.CANVAS_API_TOKEN }}
-      #     CANVAS_BASE_URL: ${{ secrets.CANVAS_BASE_URL }}
-      #   run: python agent.py
+        run: python agent.py
