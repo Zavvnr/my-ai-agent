@@ -53,7 +53,7 @@ Based on the user's provided information (quote, weather, and Canvas tasks), gen
 # 2. CREATE THE MODEL WITH THE INSTRUCTION
 # We will get this name from your log. It might be 'models/gemini-1.0-pro'
 # or 'models/text-bison-001'
-THE_CORRECT_MODEL_NAME = "PASTE_MODEL_NAME_FROM_YOUR_LOG_HERE" 
+THE_CORRECT_MODEL_NAME = "models/gemini-2.5-pro" 
 
 model = genai.GenerativeModel(
     THE_CORRECT_MODEL_NAME,
