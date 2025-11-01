@@ -32,7 +32,7 @@ This is the logical flow of the Python script from top to bottom.
     - It configures the Google AI client with your GOOGLE_API_KEY.
 
 - Model Context Protocol (MCP) Setup:
-    - System Instruction: Define the SYSTEM_INSTRUCTION variable. This is the "recipe" or "persona" for the AI. It tells the model what its job is (e.g., "You are a motivational assistant," "Format as HTML," "Use <h2> tags," etc.).
+    - System Instruction: Define the SYSTEM_INSTRUCTION variable. This is the "recipe" or "persona" for the AI. It tells the model what its job is (e.g., "You are a motivational assistant," "Format as HTML," "Use tags," etc.).
     - Model Creation: Create the model object (e.g., gemini-2.5-pro) and pass that SYSTEM_INSTRUCTION in immediately. The model now "knows" its job before it even sees data.
 
 - Data Gathering:
