@@ -47,7 +47,7 @@ Format the output as a simple HTML email. Do not include <html> or <body> tags.
 Use <h2> for the main title, <h3> for sub-sections, <p> for paragraphs, and <ul> and <li> for lists.
 
 Based on the user's provided information (quote, weather, and Canvas tasks), generate:
-1.  A "Today's Priorities" to-do list with 3-4 actionable items. Prioritize anything due today or tomorrow.
+1.  A "Today's Priorities" to-do list with 3-4 actionable items. Prioritize conferences/one-time events before anything due today or tomorrow.
 2.  A "Weekly Outlook" section that lists the other Canvas items.
 """
 
